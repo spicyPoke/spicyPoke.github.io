@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Categories on Exper Journal</title>
+    <link>https://example.org/categories/</link>
+    <description>Recent content in Categories on Exper Journal</description>
+    <generator>Hugo</generator>
+    <language>en-US</language>
+    <lastBuildDate>Tue, 04 Nov 2025 22:08:56 +0700</lastBuildDate>
+    <atom:link href="https://example.org/categories/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Ai</title>
+      <link>https://example.org/categories/ai/</link>
+      <pubDate>Tue, 04 Nov 2025 22:08:56 +0700</pubDate>
+      <guid>https://example.org/categories/ai/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Electronics</title>
+      <link>https://example.org/categories/electronics/</link>
+      <pubDate>Tue, 04 Nov 2025 22:08:56 +0700</pubDate>
+      <guid>https://example.org/categories/electronics/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Slop</title>
+      <link>https://example.org/categories/slop/</link>
+      <pubDate>Tue, 04 Nov 2025 22:08:56 +0700</pubDate>
+      <guid>https://example.org/categories/slop/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Double</title>
+      <link>https://example.org/categories/double/</link>
+      <pubDate>Tue, 04 Nov 2025 22:08:55 +0700</pubDate>
+      <guid>https://example.org/categories/double/</guid>
+      <description></description>
+    </item>
+  </channel>
+</rss>
