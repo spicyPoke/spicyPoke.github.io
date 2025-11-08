@@ -1,0 +1,25 @@
+baseURL = 'https://spicypoke.github.io/'
+languageCode = 'en-US'
+title = 'Exper Journal'
+
+[pagination]
+    pagerSize = 10
+
+[params]
+    description = "Exper's Portfolio and Journals of his projects"
+    dateFormat = "2006-01-02"
+
+[taxonomies]
+    author = "authors"
+    category = "categories"
+    tag = "tags"
+
+[markup]
+  [markup.tableOfContents]
+    endLevel = 4
+    ordered = false
+    startLevel = 1
+
+[caches]
+  [caches.images]
+    dir = ':cacheDir/images'

@@ -1,0 +1,53 @@
+# Hugo build directory
+public/
+
+# Hugo cache
+.hugo_build.lock
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+*~
+.DS_Store
+
+# Environment specific files
+.env
+.env.local
+.env.*.local
+
+# IDE specific files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Editor backup files
+*~
+*.bak
+*.backup
+
+# Node modules if using npm
+node_modules/
+
+# Local hugo server
+.hugo_server
+
+# Local assets if using processing
+resources/_gen/
+
+# Optional: if you have local config files for development
+hugo_dev.toml
+config/_default/config_dev.toml

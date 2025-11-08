@@ -1,0 +1,20 @@
+{{ define "main" }}
+
+{{ if eq .RelPermalink "/categories/" }}
+<div class="list">
+    <h1>Categories</h1>
+    <div class="categories-list">
+        {{ range $name, $taxonomy := .Site.Taxonomies.categories }}
+        <div class="category-item">
+            <a class="category-link" href="{{ (print " /categories/" $name | urlize) | relURL }}">
+                <h2>{{ $name }}</h2>
+            </a>
+            <span class="category-count">{{ $taxonomy.Count }} post{{ if gt $taxonomy.Count 1 }}s{{ end }}</span>
+        </div>
+        {{ end }}
+    </div>
+</div>
+{{ else }}
+{{ partial "list" . }}
+{{ end }}
+{{ end }}

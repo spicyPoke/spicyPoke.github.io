@@ -1,0 +1,20 @@
+{{ define "main" }}
+
+{{ if eq .RelPermalink "/tags/" }}
+<div class="list">
+    <h1>Tags</h1>
+    <div class="tags-list">
+        {{ range $name, $taxonomy := .Site.Taxonomies.tags }}
+        <div class="tag-item">
+            <a class="tag-link" href="{{ (print "/tags/" $name | urlize) | relURL }}">
+                <h2>{{ $name }}</h2>
+            </a>
+            <span class="tag-count">{{ $taxonomy.Count }} post{{ if gt $taxonomy.Count 1 }}s{{ end }}</span>
+        </div>
+        {{ end }}
+    </div>
+</div>
+{{ else }}
+{{ partial "list" . }}
+{{ end }}
+{{ end }}
