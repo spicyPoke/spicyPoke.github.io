@@ -49,7 +49,7 @@ img {
 .introductionImage {
     border-radius: 10px;
     width: 256px;
-    height: 256px;
+    max-height: 500px;
 }
 
 .identityBar {
