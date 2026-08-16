@@ -28,7 +28,7 @@ So I went looking for something better and stumbled upon SearXNG: a metasearch e
     → DuckDuckGo Lite (fallback)
 ```
 
-SearXNG sits on the Tailscale network at `:13900`. No TLS certificates, no reverse proxy — Tailscale already gives me encrypted transport and network isolation. Valkey, a Redis-compatible fork, handles rate limiting. Well, it *can* handle it. I've left the limiter disabled, because this is a single-user homelab and the Tailscale binding already keeps strangers out. Adding rate-limiting complexity for a user count of one seemed like solving a problem I don't have.
+SearXNG sits on the Tailscale network. No TLS certificates, no reverse proxy — Tailscale already gives me encrypted transport and network isolation. Valkey, a Redis-compatible fork, handles rate limiting. Well, it *can* handle it. I've left the limiter disabled, because this is a single-user homelab and the Tailscale binding already keeps strangers out. Adding rate-limiting complexity for a user count of one seemed like solving a problem I don't have.
 
 ## Why SearXNG?
 
@@ -74,13 +74,95 @@ There's a joke in here somewhere: I replaced my dependence on DuckDuckGo with a 
 - **Backend control** — a `backend` parameter lets the agent force DuckDuckGo when SearXNG results are weak, or force SearXNG with no fallback (`auto`/`searxng`/`ddg`)
 - **Lossless pagination** — a stride-40 offset mapping handles SearXNG's variable page sizes
 
+## Configuration
+
+The deployment is two containers: `searxng-core` (the search frontend and API) and `searxng-valkey` (a Redis-compatible fork for rate limiting). The core container mounts `core-config/` into `/etc/searxng/`, which is where `settings.yml` lives. Valkey gets its own volume for persistence.
+
+I started with the official compose template from the SearXNG repo — the old `searxng-docker` repo is archived, and the new recommended approach is "compose instancing" (pulling the template straight from the SearXNG repo's `container/` directory). The template is minimal: just the two services, two volumes, and a `.env` file for port configuration.
+
+### docker-compose.yml
+
+```yaml
+name: searxng
+
+services:
+  core:
+    container_name: searxng-core
+    image: docker.io/searxng/searxng:${SEARXNG_VERSION:-latest}
+    restart: always
+    ports:
+      - ${SEARXNG_HOST:+${SEARXNG_HOST}:}${SEARXNG_PORT:-<searxng port>}:${SEARXNG_PORT:-<searxng port>}
+    env_file: ./.env
+    volumes:
+      - ./core-config/:/etc/searxng/:Z
+      - core-data:/var/cache/searxng/
+
+  valkey:
+    container_name: searxng-valkey
+    image: docker.io/valkey/valkey:9-alpine
+    command: valkey-server --save 30 1 --loglevel warning
+    restart: always
+    volumes:
+      - valkey-data:/data/
+
+volumes:
+  core-data:
+  valkey-data:
+```
+
+### settings.yml
+
+The config file does three things: select which engines to expose, configure the server, and define per-engine overrides. The `use_default_settings` block with `keep_only` is a whitelist — but it only controls which engines are *available*, not whether they're active. That's why the `engines:` section at the bottom explicitly sets `disabled: false` for each one. Google ships as `inactive: true` by default, and several others — Bing, Yandex, Anna's Archive, GitLab — ship as `disabled: true`. Whitelisting them without flipping those flags was the first gotcha.
+
+Anna's Archive is the special case: it requires a `base_url` or it fails to load entirely (`ValueError: missing required config base_url`). The default template ships it without one because the domains rotate constantly to stay ahead of blocking. I gave it a list of three reachable domains, and the engine picks one randomly per request for failover.
+
+The `secret_key` was generated with `openssl rand -hex 32` and used for signing cookies and encrypting stored queries. The `image_proxy: true` setting routes image results through the SearXNG server so the user's IP isn't exposed to the original image host. `safe_search: 1` is moderate filtering — mostly relevant for Bing on this instance.
+
+```yaml
+use_default_settings:
+  engines:
+    keep_only:
+      - bing
+      - yandex
+      - arxiv
+      - annas archive
+      - github
+      - gitlab
+      - arch linux wiki
+
+server:
+  secret_key: "<secret key>"
+  image_proxy: true
+
+valkey:
+  url: "valkey://searxng-valkey:<valkey port>/0"
+
+search:
+  formats:
+    - html
+    - json
+  safe_search: 1
+
+engines:
+  - name: bing
+    disabled: false
+  - name: yandex
+    disabled: false
+  - name: annas archive
+    engine: annas_archive
+    shortcut: aa
+    base_url:
+      - https://annas-archive.gl
+      - https://annas-archive.gd
+      - https://annas-archive.li
+    disabled: false
+  - name: gitlab
+    disabled: false
+```
+
 ## Technical Challenges & Solutions
 
 Setting up the container took an evening. Making it actually *good* took a bit more than that. The whole thing — deployment, integration, debugging, runbook — took two days, most of it spent fighting engines. Here's what fought back.
-
-### Every Tutorial Is Outdated
-
-I started by looking up how everyone else deploys SearXNG. Bad move. The repo every tutorial points to — `searxng-docker` — was archived in March 2026. The official way now is "compose instancing": pulling templates straight from the SearXNG repo's `container/` directory. Morty and Filtron are gone too; Valkey is the new rate-limiting backend. Step one of the internet's instructions was already wrong.
 
 ### The Engine Whitelist That Wasn't
 
