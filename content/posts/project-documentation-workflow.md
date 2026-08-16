@@ -3,12 +3,11 @@ date = '2026-08-15T12:00:00+07:00'
 draft = false
 title = 'Project Documentation: A Structured Notes Workflow'
 description = "A systematic approach to documenting projects with daily logs, decision tracking, and task management"
-image = "/images/helloworld.webp"
-imageBig = "/images/helloworld.webp"
+
 categories = ["projects"]
 tags = ["documentation", "workflow", "notes", "productivity", "project-management"]
 authors = ["Experian"]
-avatar = "/images/fubar.webp"
+avatar = "/images/solder-profile-pic.webp"
 +++
 
 # Project Documentation: A Structured Notes Workflow

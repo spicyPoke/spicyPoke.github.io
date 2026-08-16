@@ -3,12 +3,11 @@ date = '2026-08-15T12:00:00+07:00'
 draft = false
 title = 'SearXNG: Self-Hosted Search for my Pi Harness'
 description = "A self-hosted SearXNG instance on the homelab that gives the Pi Harness assistant reliable web search, aggregating 7 search engines through a single local API with DuckDuckGo as fallback."
-image = "/images/helloworld.webp"
-imageBig = "/images/helloworld.webp"
+
 categories = ["projects"]
 tags = ["self-hosting", "searxng", "docker", "privacy", "homelab", "search"]
 authors = ["Experian"]
-avatar = "/images/fubar.webp"
+avatar = "/images/searxng-icon.svg"
 +++
 
 # SearXNG: Self-Hosted Search for my Pi Harness

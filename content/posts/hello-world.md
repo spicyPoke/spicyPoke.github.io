@@ -3,12 +3,11 @@ date = '2025-11-09T20:30:08+07:00'
 draft = false
 title = 'Hello World'
 description = "First post in this site"
-image = "/images/helloworld.webp"
-imageBig = "/images/helloworld.webp"
+
 categories = ["journal"]
 tags = ["journal"]
 authors = ["Experian"]
-avatar = "/images/fubar.webp"
+avatar = "/images/solder-profile-pic.webp"
 +++
 
 # First Post

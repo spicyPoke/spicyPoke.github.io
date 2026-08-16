@@ -1,7 +1,7 @@
 <div class="list">
     {{ range .Paginator.Pages }}
     <div class="listItem">
-        <img src={{ .Params.image }} alt={{ .Title }} class="listItemImage" loading="lazy">
+        {{ if .Params.image }}<img src={{ .Params.image }} alt={{ .Title }} class="listItemImage" loading="lazy">{{ end }}
         <div class="listItemTexts">
             <h1 class="listItemTitle">
                 <a href={{ .Permalink }}>{{ .Title }}</a>

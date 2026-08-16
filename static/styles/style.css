@@ -44,12 +44,22 @@ img {
 .introductionParagraph {
     margin-top: 10px;
     font-size: 16px;
+    text-align: center;
+}
+
+.profileImageWrapper {
+    width: 256px;
+    height: 256px;
+    border-radius: 10px;
+    overflow: hidden;
 }
 
 .introductionImage {
-    border-radius: 10px;
-    width: 256px;
-    max-height: 500px;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 80%;
+    transform: scale(1.3) translateX(20px);
 }
 
 .identityBar {
@@ -155,6 +165,9 @@ img {
     align-items: center;
     gap: 30px;
     margin-bottom: 20px;
+    padding: 20px;
+    border: 1px solid var(--bgSoft);
+    border-radius: 10px;
 }
 
 .listItemTexts {
