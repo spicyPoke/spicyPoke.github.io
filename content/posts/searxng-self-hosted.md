@@ -14,9 +14,9 @@ avatar = "/images/searxng-icon.svg"
 
 ## Overview
 
-My local AI coding assistant, running in the Pi Harness, needs to search the web all the time. For a while it searched through DuckDuckGo, which mostly worked — but sometimes it just fails, because DDG throws CAPTCHAs at automated queries. It's way more forgiving than Google in that regard, but "more forgiving" isn't the same as "reliable."
+My local AI coding assistant, running in the Pi Harness, needs to search the web from time to time. For a while it searched through DuckDuckGo Lite, which worked most of the time, but not everytime, because DDG throws CAPTCHAs at a  certain threshold of automated queries. It's way more forgiving than Google in that regard, but "more forgiving" isn't the same as "reliable".
 
-So I went looking for something better and stumbled upon SearXNG: a metasearch engine that runs on my own network and aggregates multiple search engines through one local API. Now pi's `web_search` tool asks my instance first, and only falls back to DuckDuckGo when something breaks. The privacy is a nice bonus, all those queries stay on my network instead of flowing through someone else's servers. But primarily, the reliability was the reason I built it.
+So I went looking for something better and stumbled upon SearXNG: a metasearch engine that runs on my own network and aggregates multiple search engines through one local API. Now my Pi's `web_search` tool asks my instance first, and only falls back to DuckDuckGo when something breaks. The privacy is a nice bonus, all those queries stay on my network instead of flowing through someone else's servers. But primarily, the reliability was the reason I built it.
 
 ## Architecture
 
@@ -28,15 +28,7 @@ So I went looking for something better and stumbled upon SearXNG: a metasearch e
     → DuckDuckGo Lite (fallback)
 ```
 
-SearXNG sits on the Tailscale network. No TLS certificates, no reverse proxy — Tailscale already gives me encrypted transport and network isolation. Valkey, a Redis-compatible fork, handles rate limiting. Well, it *can* handle it. I've left the limiter disabled, because this is a single-user homelab and the Tailscale binding already keeps strangers out. Adding rate-limiting complexity for a user count of one seemed like solving a problem I don't have.
-
-## Why SearXNG?
-
-Public search engines are a privacy leak and a single point of failure. Running my own instance fixes both at once:
-
-- **Privacy:** queries don't leave the local network. No tracking, no profiling, no cookies.
-- **Aggregation:** one query hits 7 different engines and merges the results.
-- **Control:** I can see exactly which engines run, what categories exist, how results are filtered.
+SearXNG sits on the Tailscale network. So I don't need TLS certificates nor reverse proxy, Tailscale already gives me encrypted transport and network isolation. Valkey, a Redis-compatible fork, handles rate limiting. But, I've left the limiter disabled, because this is a single-user homelab and the Tailscale binding already keeps strangers out. Adding rate-limiting complexity for a user count of one seemed like solving a problem I don't have.
 
 ## What's Running
 
@@ -52,7 +44,7 @@ Public search engines are a privacy leak and a single point of failure. Running 
 | Arch Linux Wiki | `!al` | it, software wikis |
 | Anna's Archive | `!aa` | files, books |
 
-The API has no `engines` parameter. Want one specific engine? That's what the shortcuts are for — `!gh` in the query hits GitHub, `!arx` hits ArXiv.
+The API has no `engines` parameter. To use specific engine we need to pass shortcuts, e.g. `!gh` in the query hits GitHub or `!arx` to hit ArXiv.
 
 ### The Engines I Killed
 
@@ -164,7 +156,7 @@ engines:
 
 Setting up the container took an evening. Making it actually *good* took a bit more than that. The whole thing — deployment, integration, debugging, runbook — took two days, most of it spent fighting engines. Here's what fought back.
 
-### The Engine Whitelist That Wasn't
+### The Engine Whitelist Confusion
 
 I set `keep_only` to whitelist 11 engines — cleaner than disabling ~230 of them one by one. Then SearXNG returned nothing. Turns out `keep_only` only filters which engines are *available*; it doesn't touch their `inactive`/`disabled` state. Google is `inactive: true` by default. Several others — Bing, Yahoo, Yandex, Anna's Archive, GitLab — are `disabled: true`. I was whitelisting engines that were already turned off. The fix was explicitly setting `inactive: false` and `disabled: false` for every engine I actually wanted.
 
@@ -174,18 +166,9 @@ Google serves CAPTCHAs to automated SearXNG instances. SearXNG's handler suspend
 
 ### Anna's Archive Is a Moving Target
 
-Anna's Archive rotates its domains constantly to stay ahead of blocking, and the engine fails silently without a `base_url` configured. The config key has a trap in it: `keep_only` matches the engine's `name:` field — `annas archive`, with a space — not the `engine:` field, `annas_archive`, with an underscore. Use the wrong one and the engine gets pruned silently. It doesn't even appear in `/config`. As of August 2026, `.gl`, `.gd`, and `.li` are reachable; `.org` and `.se` are down. The engine accepts a list of domains and rotates through them per request. I gave it a failover list and moved on.
+Anna's Archive rotates its domains constantly to stay ahead of blocking, and the engine fails silently without a `base_url` configured. I also found that the config key has a trap in it: `keep_only` matches the engine's `name:` field, `annas archive`, with a space, not the `engine:` field, `annas_archive`, with an underscore. Use the wrong one and the engine gets pruned silently. It doesn't even appear in `/config`. As of August 2026, `.gl`, `.gd`, and `.li` are reachable; `.org` and `.se` are down. The engine accepts a list of domains and rotates through them per request. I gave it a failover list and moved on.
 
 ### Pagination Drift
 
 SearXNG's page sizes vary wildly, page 1 comes back with ~29 results, later pages shrink to ~10 as engines suspend mid-session. A naive offset mapping drifts: the same results come back renumbered, or pages get skipped. I tested this for a while and never saw a single page return more than 40 results, so I simply set the stride to 40. Should be enough.
 
-## Lessons Learned
-
-1. **Self-hosting isn't "install and forget."** Engines degrade over time — CAPTCHAs, rate limits, domain rot. Within a day, four of my eleven engines were dead or dying. That's why the extension now surfaces `unresponsiveEngines` in its results. Though even that has a blind spot: a suspended engine doesn't error, it just returns zero results silently, and `unresponsive_engines` won't list it. The only way to spot a non-contributing engine is the per-result `engines` field.
-
-2. **The `categories` parameter is essential.** Without it, uncategorized searches only hit bing+yandex. Code and science queries got poor results until the agent could opt into `it` or `science`.
-
-3. **Tailscale is a homelab cheat code.** Encrypted transport, DNS, network isolation — no TLS certificates, no reverse proxy, no port forwarding. I planned an entire reverse-proxy step and then deleted it.
-
-4. **Fail fast, fail gracefully.** The 5-second cap means a down SearXNG instance doesn't stall the agent, it falls back to DDG.
