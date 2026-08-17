@@ -291,6 +291,9 @@ img {
     font-size: 16px;
     line-height: 1.5;
     margin-right: 25px;
+    /* allow the column to shrink below its content width so
+       overflowing children (code blocks, tables) stay contained */
+    min-width: 0;
 }
 
 .singleContent p,
@@ -310,6 +313,34 @@ img {
     overflow-x: scroll;
     padding: 10px;
     border-radius: 10px;
+}
+
+.singleContent table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.singleContent th,
+.singleContent td {
+    text-align: left;
+    vertical-align: top;
+    padding: 8px;
+    overflow-wrap: anywhere;
+    border: 1px solid var(--bgSoft);
+}
+
+.singleContent th {
+    background-color: var(--bgSoft);
+}
+
+.singleContent a {
+    color: var(--textSoft);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+.singleContent a:hover {
+    color: var(--text);
 }
 
 .singleRightBar {
