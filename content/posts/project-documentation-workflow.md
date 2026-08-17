@@ -117,11 +117,3 @@ Small projects stay small — just one file. Big ones get a folder with runbooks
 ### It captures process, not just outcomes
 
 Most project documentation tells you what got built. This captures how it got built — the decisions, the dead ends, the things I learned the hard way. That's where the real value is. The next project I work on gets to stand on that.
-
-## Lessons Learned
-
-1. **Daily logs pile up fast.** Multiple entries per day is normal, and the file gets long. The numbering keeps it from turning into soup, but honestly the Key Decisions table is what keeps the whole thing navigable.
-
-2. **Template rigidity is a feature.** Every project file looks the same. That familiarity makes it easier to read.
-
-3. **The system is only as good as the entries.** A project with no daily log is just a TODO list. The value lives in the accumulated knowledge — the gotchas, the failed approaches, the "aha" moments. Write them down.

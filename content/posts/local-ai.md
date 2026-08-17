@@ -145,20 +145,6 @@ At ~80k tokens of context:
 
 12 tokens/s is readable speed — not instant, but fast enough to not be frustrating. The prompt processing at 120 tok/s means feeding it a long context window doesn't take too long.
 
-## Lessons Learned
-
-1. **Consumer GPUs can run large models, but not without compromises.** The RX 580's 8GB VRAM is enough with GTT overflow, but it's definitely slower than a card with more native VRAM.
-
-2. **Quantization matters.** The UD-Q5_K_XL quantization gives a good balance of quality and size. Going lower (Q4, Q3) saves memory but degrades quality noticeably. Going higher (Q6, Q8) costs more memory for marginal quality gains.
-
-3. **The reasoning budget is essential.** Without it, the model's thinking phase can go on indefinitely. Setting a budget and a wrap-up message keeps the model focused and prevents token budget blowouts.
-
-4. **Tool call reliability is non-negotiable.** I tried Gemma 4, which was close in capability, but it would hallucinate tool arguments or call the wrong functions. For an assistant that's supposed to actually *do* things, that's a dealbreaker. Qwen's tool call accuracy is what made it the right choice.
-
-5. **Power consumption is something to keep in mind.** 170W GPU-only during inference is not something you want running 24/7. This is a desktop workload, not a server workload. Factor in the electricity cost if you plan to leave it running.
-
-6. **SOTA models are the reviewers, not the workhorses.** The local model handles the bulk of the Pi workflow — `brainstorm`, `plan`, `execute-plan` — and SOTA cloud models only show up at the review gates: `spec-review`, `plan-review`, and `code review`. As long as the task isn't too long or too big, the local model can tackle it, and keeping the bulk of the work local means most of it runs fast, private, and free.
-
 ## References
 
 - [Qwen3.6-35B-A3B — model card](https://huggingface.co/Qwen/Qwen3.6-35B-A3B)
